@@ -1,28 +1,28 @@
-use tokio::net::TcpStream;
-use tokio::io::{AsyncWriteExt, AsyncReadExt};
+mod elm327;
 
 #[tokio::main]
 async fn main() {
-    let mut stream = TcpStream::connect("192.168.0.10:35000").await.unwrap();
+    let address = "192.168.0.10:35000"; 
 
-    let version = send_command(&mut stream, "ATZ").await;      // Reset and get version
-    println!("ELM327 Version: {}", version.trim());
+    match elm327::Elm327Connection::connect(address).await {
+        Ok((mut connection, version)) => {
+            println!("Successfully connected to ELM327 device!");
+            println!("ELM327 Version: {}", version.trim());
 
-    send_command(&mut stream, "ATE0").await;     // Echo off
-    send_command(&mut stream, "ATSP0").await;    // Auto-select protocol
-    tokio::time::sleep(tokio::time::Duration::from_secs(2)).await; // Wait for protocol detection
+            // Read Coolant Temperature
+            let temp = connection.read_coolant_temperature().await;
+            println!("Coolant Temperature: {}°C", temp);
 
-    let voltage = send_command(&mut stream, "ATRV").await;     // Get voltage
-    println!("Voltage: {}", voltage.trim());
 
-}
+            match connection.read_stored_dtc().await {
+                Ok(_) => println!("Successfully cleard"),
+                Err(e) => println!("Error reading DTCs: {}", e),
+            }
 
-async fn send_command(stream: &mut TcpStream, command: &str) -> String {
-    let cmd = format!("{}\r", command); // Commands to ELM327 are terminated with a carriage return
-    stream.write_all(cmd.as_bytes()).await.unwrap();
 
-    let mut buffer = vec![0u8; 128];  // Adjust buffer size as needed
-    let _ = stream.read(&mut buffer).await.unwrap();
-    let response = String::from_utf8_lossy(&buffer).into_owned();
-    response
+        }
+        Err(e) => {
+            println!("Failed to connect: {}", e);
+        }
+    }
 }
