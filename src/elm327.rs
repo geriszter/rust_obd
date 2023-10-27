@@ -31,10 +31,20 @@ impl Elm327Connection {
     }
 
     async fn read_response(&mut self) -> io::Result<String> {
-        let mut response = String::new();
-        self.stream.read_to_string(&mut response).await?;
-        Ok(response)
+        let mut buffer = Vec::new();
+        let mut byte = [0u8; 1];
+    
+        loop {
+            self.stream.read_exact(&mut byte).await?;
+            if byte[0] == b'>' { // end of line
+                break;
+            }
+            buffer.push(byte[0]);
+        }
+    
+        String::from_utf8(buffer).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))
     }
+    
 
     //Just for testing
     pub async fn read_coolant_temperature(&mut self) -> i32 {
