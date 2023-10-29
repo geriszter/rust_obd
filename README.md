@@ -24,5 +24,5 @@ On errors, appropriate error messages will be displayed.
 - elm327: Contains the Elm327Connection struct which is responsible for establishing a connection to the ELM327 device, sending commands, and reading responses.
 - command: Defines the OBDCommand struct and associated commands and decoding functions. This module contains the logic for encoding OBD-II commands, sending them to the ELM327 device, and decoding the received data.
 
-OBD-II Commands Reference
+## OBD-II Commands Reference
 For a comprehensive list of OBD-II commands (PIDs), you can refer to the [Wikipedia page on OBD-II PIDs](https://en.wikipedia.org/wiki/OBD-II_PIDs).

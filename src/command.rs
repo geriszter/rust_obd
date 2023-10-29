@@ -12,36 +12,92 @@ enum DecoderFunction {
     Status,
     SingleDTC,
     FuelStatus,
-    Percent,
     Temperature,
-    PercentCentered,
     FuelPressure,
-    Pressure,
-    UAS(u8),
+    IntakePressure,
     TimingAdvance,
     AirStatus,
     O2Sensors,
     SensorVoltage,
     OBdCompliance,
-    O2SensorsAlt,
+    O2Sensor,
     AuxInputStatus,
     SensorVoltageBig,
     CurrentCentered,
     EvapPressure,
     Load,
+    RPM,
+    MAF,
+    Speed,
     FuelSystem,
+    FuelTrim,
+    ThrottlePosition,
+    Runtime,
+    FuelLevel,
+    BarometricPressure,
+    ModuleVoltage,
+    AbsoluteLoad,
+    EquivRatio,
+    CatalystTemperature,
+    ACRefrigerant,
+    SecondaryAirStatus,
+    OxygenSensorsPresent,
+    DistanceTraveledMILON,
+    EgreError,
+    FuelRailPressure,
     // ...
 }
 
 //there are 78 commands
-static MODE1: [OBDCommand; 7] = [
+static MODE1: [OBDCommand; 45] = [
     OBDCommand { name: "PIDS_A", description: "Supported PIDs [01-20]", cmd: b"0100", bytes: 6, decoder: DecoderFunction::PID },
     OBDCommand { name: "STATUS", description: "Status since DTCs cleared", cmd: b"0101", bytes: 6, decoder: DecoderFunction::Status },
     OBDCommand { name: "FREEZE_DTC", description: "Freeze DTC", cmd: b"0102", bytes: 2, decoder: DecoderFunction::Default },
     OBDCommand { name: "FUEL_SYSTEM", description: "Fuel system status", cmd: b"0103", bytes: 2, decoder: DecoderFunction::FuelSystem },
-    OBDCommand { name: "LOAD", description: "Calculated engine load", cmd: b"0104", bytes: 1, decoder: DecoderFunction::Load },
+    OBDCommand { name: "ENGINE_LOAD", description: "Calculated engine load", cmd: b"0104", bytes: 1, decoder: DecoderFunction::Load },
     OBDCommand { name: "ENGINE_COOOLANT_TEMPERATURE", description: "Engine coolant temperature", cmd: b"0105", bytes: 1, decoder: DecoderFunction::Temperature },
-    OBDCommand { name: "PLACEHOLDER", description: "Placeholder", cmd: b"01XX", bytes: 1, decoder: DecoderFunction::Default },
+
+    OBDCommand { name: "SHORT_TERM_FUEL_TRIM_BANK1", description: "Short term fuel % trim - Bank 1", cmd: b"0106", bytes: 1, decoder: DecoderFunction::FuelTrim },
+    OBDCommand { name: "LONG_TERM_FUEL_TRIM_BANK1", description: "Long term fuel % trim - Bank 1", cmd: b"0107", bytes: 1, decoder: DecoderFunction::FuelTrim },
+    OBDCommand { name: "SHORT_TERM_FUEL_TRIM_BANK2", description: "Short term fuel % trim - Bank 2", cmd: b"0108", bytes: 1, decoder: DecoderFunction::FuelTrim },
+    OBDCommand { name: "LONG_TERM_FUEL_TRIM_BANK2", description: "Long term fuel % trim - Bank 2", cmd: b"0109", bytes: 1, decoder: DecoderFunction::FuelTrim },
+    OBDCommand { name: "FUEL_PRESSURE", description: "Fuel pressure", cmd: b"010A", bytes: 1, decoder: DecoderFunction::FuelPressure },
+    OBDCommand { name: "INTAKE_MANIFOLD_PRESSURE", description: "Intake manifold absolute pressure", cmd: b"010B", bytes: 1, decoder: DecoderFunction::IntakePressure },
+    OBDCommand { name: "RPM", description: "Engine RPM", cmd: b"010C", bytes: 2, decoder: DecoderFunction::RPM },
+    OBDCommand { name: "SPEED", description: "Vehicle speed", cmd: b"010D", bytes: 1, decoder: DecoderFunction::Speed },
+    OBDCommand { name: "TIMING_ADVANCE", description: "Timing advance", cmd: b"010E", bytes: 1, decoder: DecoderFunction::TimingAdvance },
+    OBDCommand { name: "INTAKE_AIR_TEMPERATURE", description: "Intake air temperature", cmd: b"010F", bytes: 1, decoder: DecoderFunction::Temperature },
+    OBDCommand { name: "MAF", description: "Mass air flow rate", cmd: b"0110", bytes: 2, decoder: DecoderFunction::MAF },
+    OBDCommand { name: "THROTTLE_POSITION", description: "Throttle position", cmd: b"0111", bytes: 1, decoder: DecoderFunction::ThrottlePosition },
+
+    OBDCommand { name: "O2_SENSOR_BANK1_SENSOR1", description: "O2 Sensor Bank 1, Sensor 1", cmd: b"0114", bytes: 2, decoder: DecoderFunction::O2Sensor },
+    OBDCommand { name: "O2_SENSOR_BANK1_SENSOR2", description: "O2 Sensor Bank 1, Sensor 2", cmd: b"0115", bytes: 2, decoder: DecoderFunction::O2Sensor },
+    OBDCommand { name: "O2_SENSOR_BANK1_SENSOR3", description: "O2 Sensor Bank 1, Sensor 3", cmd: b"0116", bytes: 2, decoder: DecoderFunction::O2Sensor },
+    OBDCommand { name: "O2_SENSOR_BANK1_SENSOR4", description: "O2 Sensor Bank 1, Sensor 4", cmd: b"0117", bytes: 2, decoder: DecoderFunction::O2Sensor },
+    OBDCommand { name: "O2_SENSOR_BANK2_SENSOR1", description: "O2 Sensor Bank 2, Sensor 1", cmd: b"0118", bytes: 2, decoder: DecoderFunction::O2Sensor },
+    OBDCommand { name: "O2_SENSOR_BANK2_SENSOR2", description: "O2 Sensor Bank 2, Sensor 2", cmd: b"0119", bytes: 2, decoder: DecoderFunction::O2Sensor },
+    OBDCommand { name: "O2_SENSOR_BANK2_SENSOR3", description: "O2 Sensor Bank 2, Sensor 3", cmd: b"011A", bytes: 2, decoder: DecoderFunction::O2Sensor },
+    OBDCommand { name: "O2_SENSOR_BANK2_SENSOR4", description: "O2 Sensor Bank 2, Sensor 4", cmd: b"011B", bytes: 2, decoder: DecoderFunction::O2Sensor },
+    OBDCommand { name: "RUNTIME_SINCE_ENGINE_START", description: "Run time since engine start", cmd: b"011F", bytes: 2, decoder: DecoderFunction::Runtime },
+    OBDCommand { name: "FUEL_TANK_LEVEL_INPUT", description: "Fuel Tank Level Input", cmd: b"012F", bytes: 1, decoder: DecoderFunction::FuelLevel },
+    OBDCommand { name: "EVAP_SYSTEM_VAPOR_PRESSURE", description: "Evap System Vapor Pressure", cmd: b"0130", bytes: 2, decoder: DecoderFunction::EvapPressure },
+    OBDCommand { name: "BAROMETRIC_PRESSURE", description: "Barometric Pressure", cmd: b"0133", bytes: 1, decoder: DecoderFunction::BarometricPressure },
+
+    OBDCommand { name: "CONTROL_MODULE_VOLTAGE", description: "Control module voltage", cmd: b"0142", bytes: 2, decoder: DecoderFunction::ModuleVoltage },
+    OBDCommand { name: "ABSOLUTE_LOAD_VALUE", description: "Absolute load value", cmd: b"0143", bytes: 2, decoder: DecoderFunction::AbsoluteLoad },
+    OBDCommand { name: "FUEL_AIR_COMMANDED_EQUIV_RATIO", description: "Commanded equivalence ratio", cmd: b"0144", bytes: 2, decoder: DecoderFunction::EquivRatio },
+    OBDCommand { name: "RELATIVE_THROTTLE_POSITION", description: "Relative throttle position", cmd: b"0145", bytes: 1, decoder: DecoderFunction::ThrottlePosition},
+    OBDCommand { name: "AMBIENT_AIR_TEMPERATURE", description: "Ambient air temperature", cmd: b"0146", bytes: 1, decoder: DecoderFunction::Temperature },
+    OBDCommand { name: "CATALYST_TEMPERATURE_BANK1_SENSOR1", description: "Catalyst Temperature: Bank 1, Sensor 1", cmd: b"013C", bytes: 2, decoder: DecoderFunction::CatalystTemperature },
+    OBDCommand { name: "CATALYST_TEMPERATURE_BANK2_SENSOR1", description: "Catalyst Temperature: Bank 2, Sensor 1", cmd: b"013D", bytes: 2, decoder: DecoderFunction::CatalystTemperature },
+    OBDCommand { name: "CATALYST_TEMPERATURE_BANK1_SENSOR2", description: "Catalyst Temperature: Bank 1, Sensor 2", cmd: b"013E", bytes: 2, decoder: DecoderFunction::CatalystTemperature },
+    OBDCommand { name: "CATALYST_TEMPERATURE_BANK2_SENSOR2", description: "Catalyst Temperature: Bank 2, Sensor 2", cmd: b"013F", bytes: 2, decoder: DecoderFunction::CatalystTemperature },
+    OBDCommand { name: "AC_REFRIGERANT", description: "A/C Refrigerant", cmd: b"0152", bytes: 1, decoder: DecoderFunction::ACRefrigerant },
+    OBDCommand { name: "SECONDARY_AIR_STATUS", description: "Secondary air status", cmd: b"012C", bytes: 1, decoder: DecoderFunction::SecondaryAirStatus },
+    OBDCommand { name: "OXYGEN_SENSORS_PRESENT", description: "Oxygen sensors present", cmd: b"0113", bytes: 2, decoder: DecoderFunction::OxygenSensorsPresent },
+    OBDCommand { name: "DISTANCE_TRAVELED_MIL_ON", description: "Distance traveled with malfunction indicator lamp (MIL) on", cmd: b"0121", bytes: 2, decoder: DecoderFunction::DistanceTraveledMILON },
+    OBDCommand { name: "EGR_ERROR", description: "EGR Error", cmd: b"0158", bytes: 1, decoder: DecoderFunction::EgreError },
+    OBDCommand { name: "FUEL_RAIL_PRESSURE", description: "Fuel Rail Pressure", cmd: b"0123", bytes: 2, decoder: DecoderFunction::FuelRailPressure },
 ];
 
 impl OBDCommand {
@@ -49,29 +105,44 @@ impl OBDCommand {
     
     pub fn decode_data(command: &OBDCommand, raw_data: &[u8]) -> String {
         match command.decoder {
-            DecoderFunction::PID => todo!(),
+            DecoderFunction::Default => raw_data.iter().map(|&byte| format!("{:02X}", byte)).collect::<String>(), //So if you had raw data like [0x12, 0x34, 0x56], it would be converted to the string "123456".
+            DecoderFunction::PID => Self::decode_pids(raw_data),
             DecoderFunction::Status => Self::decode_status(raw_data),
             DecoderFunction::Temperature => Self::decode_temperature(raw_data).to_string(),
-            DecoderFunction::Default => todo!(),
             DecoderFunction::SingleDTC => todo!(),
-            DecoderFunction::FuelStatus => todo!(),
-            DecoderFunction::Percent => todo!(),
-            DecoderFunction::PercentCentered => todo!(),
-            DecoderFunction::FuelPressure => todo!(),
-            DecoderFunction::Pressure => todo!(),
-            DecoderFunction::UAS(_) => todo!(),
-            DecoderFunction::TimingAdvance => todo!(),
+            DecoderFunction::FuelStatus => Self::decode_fuel_system(raw_data),
+            DecoderFunction::FuelPressure => Self::decode_fuel_pressure(raw_data).to_string(),
+            DecoderFunction::IntakePressure => Self::decode_intake_pressure(raw_data).to_string(),
+            DecoderFunction::TimingAdvance => Self::decode_timing_advance(raw_data).to_string(),
             DecoderFunction::AirStatus => todo!(),
             DecoderFunction::O2Sensors => todo!(),
             DecoderFunction::SensorVoltage => todo!(),
             DecoderFunction::OBdCompliance => todo!(),
-            DecoderFunction::O2SensorsAlt => todo!(),
+            DecoderFunction::O2Sensor => Self::decode_o2_sensor(raw_data),
             DecoderFunction::AuxInputStatus => todo!(),
             DecoderFunction::SensorVoltageBig => todo!(),
             DecoderFunction::CurrentCentered => todo!(),
             DecoderFunction::EvapPressure => todo!(),
-            DecoderFunction::Load => todo!(),
+            DecoderFunction::Load => Self::decode_load(raw_data).to_string(),
+            DecoderFunction::RPM => Self::decode_rpm(raw_data).to_string(),
+            DecoderFunction::Speed => Self::decode_speed(raw_data).to_string(),
+            DecoderFunction::MAF => Self::decode_maf_rate(raw_data).to_string(),
             DecoderFunction::FuelSystem => todo!(),
+            DecoderFunction::FuelTrim => Self::decode_fuel_trim(raw_data).to_string(),
+            DecoderFunction::ThrottlePosition => Self::decode_throttle_position(raw_data).to_string(),
+            DecoderFunction::Runtime => Self::decode_runtime(raw_data).to_string(),
+            DecoderFunction::FuelLevel => Self::decode_fuel_level(raw_data).to_string(),
+            DecoderFunction::BarometricPressure => Self::decode_barometric_pressure(raw_data).to_string(),
+            DecoderFunction::ModuleVoltage => Self::decode_module_voltage(raw_data).to_string(),
+            DecoderFunction::AbsoluteLoad => Self::decode_absolute_load(raw_data).to_string(),
+            DecoderFunction::EquivRatio => Self::decode_equiv_ratio(raw_data).to_string(),
+            DecoderFunction::CatalystTemperature => Self::decode_catalyst_temperature(raw_data).to_string(),
+            DecoderFunction::ACRefrigerant => Self::decode_ac_refrigerant(raw_data),
+            DecoderFunction::SecondaryAirStatus => Self::decode_secondary_air_status(raw_data).to_string(),
+            DecoderFunction::OxygenSensorsPresent => Self::decode_oxygen_sensors_present(raw_data),
+            DecoderFunction::DistanceTraveledMILON => Self::decode_distance_traveled_mil_on(raw_data).to_string(),
+            DecoderFunction::EgreError => Self::decode_egr_error(raw_data).to_string(),
+            DecoderFunction::FuelRailPressure => Self::decode_fuel_rail_pressure(raw_data).to_string(),
             // ... other cases ...
     }
 }
@@ -88,9 +159,19 @@ pub fn get_command(name: &str) -> Option<&'static OBDCommand> {
     None
 }
 
-fn decode_pid(data: &[u8]) -> Vec<u8> {
-    // This can be more complicated based on how you interpret the data
-    data.to_vec()
+fn decode_pids(data: &[u8]) -> String {
+    let mut supported = Vec::new();
+    
+    for (byte_index, byte) in data.iter().enumerate() {
+        for bit_index in 0..8 {
+            if byte & (1 << bit_index) != 0 {
+                supported.push(((byte_index * 8) + bit_index + 1) as u8);
+            }
+        }
+    }
+
+    // Convert Vec<u8> to a String of concatenated hex PIDs
+    supported.iter().map(|pid| format!("{:02X}", pid)).collect::<String>()
 }
 
 fn decode_status(data: &[u8]) -> String {
@@ -120,8 +201,155 @@ fn decode_temperature(data: &[u8]) -> i32 {
     data[0] as i32 - 40  // Celsius
 }
 
-fn decode_o2_voltage(data: &[u8]) -> f32 {
-    (data[0] as f32) * 0.005  // typical formula for some O2 sensors
+fn decode_fuel_pressure(data: &[u8]) -> i32 {
+    data[0] as i32 * 3
 }
+
+fn decode_intake_pressure(data: &[u8]) -> i32 {
+    data[0] as i32
+}
+
+fn decode_rpm(data: &[u8]) -> f32 {
+    ((data[0] as f32) * 256.0 + (data[1] as f32)) / 4.0
+}
+
+fn decode_speed(data: &[u8]) -> f32 {
+    data[0] as f32 * 0.621371 // mph
+}
+
+fn decode_timing_advance(data: &[u8]) -> f32 {
+    ((data[0] as f32) - 128.0) / 2.0
+}
+
+fn decode_maf_rate(data: &[u8]) -> f32 {
+    ((data[0] as f32) * 256.0 + (data[1] as f32)) / 100.0 // g/s
+}
+
+fn decode_o2_sensor(data: &[u8]) -> String {
+    let voltage = data[0] as f32 / 200.0;
+    let fuel_to_air_ratio = data[1] as f32 / 128.0;
+    format!("Voltage: {:.2} V, Fuel-to-Air Ratio: {:.2}", voltage, fuel_to_air_ratio) // need to split
+}
+
+
+fn decode_fuel_trim(data: &[u8]) -> f32 {
+    (data[0] as f32 - 128.0) * 100.0 / 128.0 // Percentage
+}
+
+fn decode_runtime(data: &[u8]) -> u16 {
+    // Combine two bytes into a 16-bit value to get the total runtime in seconds
+    ((data[0] as u16) << 8) | data[1] as u16
+}
+
+fn decode_fuel_level(data: &[u8]) -> f32 {
+    // Convert the byte value into a percentage
+    data[0] as f32 / 2.55
+}
+
+fn decode_barometric_pressure(data: &[u8]) -> u8 {
+    data[0] // kPa
+}
+
+fn decode_module_voltage(raw_data: &[u8]) -> f32 {
+    let value = (raw_data[0] as u16) << 8 | (raw_data[1] as u16);
+    value as f32 / 1000.0
+}
+
+fn decode_throttle_position(data: &[u8]) -> f32 {
+    data[0] as f32 / 2.55 // Percentage
+}
+
+fn decode_absolute_load(raw_data: &[u8]) -> f32 {
+
+    let value = (raw_data[0] as u16) << 8 | (raw_data[1] as u16);
+    (value as f32 / 255.0) * 100.0
+}
+
+fn decode_equiv_ratio(raw_data: &[u8]) -> f32 {
+    let value = (raw_data[0] as u16) << 8 | (raw_data[1] as u16);
+    value as f32 / 32768.0
+}
+
+fn decode_catalyst_temperature(raw_data: &[u8]) -> f32 {
+    let value = ((raw_data[0] as u16) << 8) | (raw_data[1] as u16);
+    (value as f32 - 40.0) / 10.0
+}
+
+fn decode_ac_refrigerant(raw_data: &[u8]) -> String {
+
+    match raw_data[0] {
+        0x00 => "Not Low".to_string(),
+        0x01 => "Low".to_string(),
+        _ => "Unknown".to_string(),
+    }
+}
+
+fn decode_secondary_air_status(raw_data: &[u8]) -> String {
+
+    let status = match raw_data[0] {
+        0x01 => "Upstream",
+        0x02 => "Downstream of catalytic converter",
+        0x04 => "From the outside atmosphere or off",
+        0x08 => "Pump commanded on for diagnostics",
+        _ => "Unknown",
+    };
+
+    status.to_string()
+}
+
+fn decode_oxygen_sensors_present(raw_data: &[u8]) -> String {
+    let mut sensors = Vec::new();
+
+    if raw_data[0] & 0x01 != 0 {
+        sensors.push("Bank 1, Sensor 1");
+    }
+    if raw_data[0] & 0x02 != 0 {
+        sensors.push("Bank 1, Sensor 2");
+    }
+    if raw_data[0] & 0x04 != 0 {
+        sensors.push("Bank 1, Sensor 3");
+    }
+    if raw_data[0] & 0x08 != 0 {
+        sensors.push("Bank 1, Sensor 4");
+    }
+    if raw_data[0] & 0x10 != 0 {
+        sensors.push("Bank 2, Sensor 1");
+    }
+    if raw_data[0] & 0x20 != 0 {
+        sensors.push("Bank 2, Sensor 2");
+    }
+    if raw_data[0] & 0x40 != 0 {
+        sensors.push("Bank 2, Sensor 3");
+    }
+    if raw_data[0] & 0x80 != 0 {
+        sensors.push("Bank 2, Sensor 4");
+    }
+
+    sensors.join(", ")
+}
+
+fn decode_distance_traveled_mil_on(raw_data: &[u8]) -> String {
+    let distance_km = ((raw_data[0] as u16) << 8) | (raw_data[1] as u16);
+    
+    // Convert kilometers to miles
+    let distance_miles = distance_km as f32 * 0.621371;
+
+    distance_miles.to_string()
+}
+
+fn decode_egr_error(raw_data: &[u8]) -> String {
+
+    // Calculate the EGR Error percentage
+    let egr_error_percentage = ((raw_data[0] as i32 - 128) * 100) / 128;
+
+    egr_error_percentage.to_string()
+}
+
+fn decode_fuel_rail_pressure(raw_data: &[u8]) -> f32 {
+    // Calculate the Fuel Rail Pressure in kPa
+    let pressure_kpa = (raw_data[0] as u16 * 256 + raw_data[1] as u16) as f32;
+    return  pressure_kpa;
+}
+
 
 }

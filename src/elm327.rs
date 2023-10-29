@@ -3,6 +3,8 @@ use tokio::io::{self, AsyncWriteExt, AsyncReadExt};
 use tokio::time::{timeout, Duration};
 use crate::command::OBDCommand;
 
+// TODO: Remove the command class from this class
+
 
 
 pub struct Elm327Connection {
