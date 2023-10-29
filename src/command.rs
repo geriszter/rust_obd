@@ -1,7 +1,7 @@
 pub struct OBDCommand {
-    name: &'static str,
+    pub name: &'static str, //change back to priv later
     description: &'static str,
-    cmd: &'static [u8; 4],
+    pub cmd: &'static [u8; 4], //change back to priv later
     bytes: u8,
     decoder: DecoderFunction,
 }
@@ -76,15 +76,17 @@ impl OBDCommand {
     }
 }
 
-pub fn get_command(name: &str) -> Option<&'static [u8; 4]>{
+
+pub fn get_command(name: &str) -> Option<&'static OBDCommand> {
     for command in MODE1.iter() {
         if command.name == name {
-            return Some(&command.cmd);
+            return Some(command);
         }
     }
+
+    println!("Command not found");
     None
 }
-
 
 fn decode_pid(data: &[u8]) -> Vec<u8> {
     // This can be more complicated based on how you interpret the data
@@ -115,7 +117,7 @@ fn decode_load(data: &[u8]) -> f32 {
 
 
 fn decode_temperature(data: &[u8]) -> i32 {
-    data[0] as i32 - 40  // the usual formula for temperature in OBD-II
+    data[0] as i32 - 40  // Celsius
 }
 
 fn decode_o2_voltage(data: &[u8]) -> f32 {

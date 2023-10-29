@@ -28,14 +28,12 @@ async fn main() {
     }
     
 
-    //command test
-    // let cmd = OBDCommand::get_command("ENGINE_COOOLANT_TEMPERATURE");
-    // // Using pattern matching
-    // let result = match cmd {
-    //     Some(array) => String::from_utf8_lossy(array).to_string(),
-    //     None => String::from("None"),
-    // };
-    // println!("Command Name: {}", result);
+    // //command test
+    let cmd = command::OBDCommand::get_command("ENGINE_COOOLANT_TEMPERATURE");
+
+    if let Some(command) = cmd {
+        println!("Command Name: {}, cmd: {}", command.name, String::from_utf8_lossy(&command.cmd[..]).to_string());
+    }
     
 
 }
