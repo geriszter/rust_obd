@@ -1,5 +1,7 @@
 use tokio::net::TcpStream;
 use tokio::io::{self, AsyncWriteExt, AsyncReadExt};
+use tokio::time::{timeout, Duration};
+
 
 pub struct Elm327Connection {
     stream: TcpStream,
@@ -16,7 +18,7 @@ impl Elm327Connection {
     }
 
     pub async fn connect(address: &str) -> io::Result<(Self, String)> {
-        let stream = TcpStream::connect(address).await?;
+        let stream = timeout(Duration::from_secs(5), TcpStream::connect(address)).await??;
         let mut connection = Elm327Connection { stream };
         
         let version = connection.initialize().await?;

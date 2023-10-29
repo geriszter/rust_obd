@@ -1,3 +1,4 @@
+use tokio::time::{timeout, Duration};
 mod elm327;
 mod command;
 
@@ -5,8 +6,8 @@ mod command;
 async fn main() {
     let address = "192.168.0.10:35000"; 
 
-    match elm327::Elm327Connection::connect(address).await {
-        Ok((mut connection, version)) => {
+    match timeout(Duration::from_secs(5), elm327::Elm327Connection::connect(address)).await {
+        Ok(Ok((mut connection, version))) => {
             println!("Successfully connected to ELM327 device!");
             println!("ELM327 Version: {}", version.trim());
 
@@ -14,16 +15,17 @@ async fn main() {
             let temp = connection.read_coolant_temperature().await;
             println!("Coolant Temperature: {}°C", temp);
 
-
-            match connection.read_stored_dtc().await {
-                Ok(_) => println!("Done"),
-                Err(e) => println!("Error reading DTCs: {}", e),
+            match timeout(Duration::from_secs(5), connection.read_stored_dtc()).await {
+                Ok(Ok(_)) => println!("Done"),
+                Ok(Err(e)) => println!("Error reading DTCs: {}", e),
+                Err(_) => println!("Timed out while reading DTCs"),
             }
-
-
-        }
-        Err(e) => {
+        },
+        Ok(Err(e)) => {
             println!("Failed to connect: {}", e);
+        },
+        Err(_) => {
+            println!("Connection Timed Out");
         }
     }
     
