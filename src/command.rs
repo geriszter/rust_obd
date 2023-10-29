@@ -9,6 +9,7 @@ pub struct OBDCommand {
 enum DecoderFunction {
     Default,
     PID,
+    VIN,
     Status,
     SingleDTC,
     FuelStatus,
@@ -17,7 +18,6 @@ enum DecoderFunction {
     IntakePressure,
     TimingAdvance,
     AirStatus,
-    O2Sensors,
     SensorVoltage,
     OBdCompliance,
     O2Sensor,
@@ -45,11 +45,19 @@ enum DecoderFunction {
     DistanceTraveledMILON,
     EgreError,
     FuelRailPressure,
+    EvapPurge,
+    WarmUps,
+    DistanceTraveled,
+    EvapVaporPressureAlt,
+    FuelRailPressureAbs,
+    OilTemperature,
+    InjectionTiming,
+    FuelRate,
     // ...
 }
 
 //there are 78 commands
-static MODE1: [OBDCommand; 45] = [
+static MODE1: [OBDCommand; 55] = [
     OBDCommand { name: "PIDS_A", description: "Supported PIDs [01-20]", cmd: b"0100", bytes: 6, decoder: DecoderFunction::PID },
     OBDCommand { name: "STATUS", description: "Status since DTCs cleared", cmd: b"0101", bytes: 6, decoder: DecoderFunction::Status },
     OBDCommand { name: "FREEZE_DTC", description: "Freeze DTC", cmd: b"0102", bytes: 2, decoder: DecoderFunction::Default },
@@ -98,6 +106,18 @@ static MODE1: [OBDCommand; 45] = [
     OBDCommand { name: "DISTANCE_TRAVELED_MIL_ON", description: "Distance traveled with malfunction indicator lamp (MIL) on", cmd: b"0121", bytes: 2, decoder: DecoderFunction::DistanceTraveledMILON },
     OBDCommand { name: "EGR_ERROR", description: "EGR Error", cmd: b"0158", bytes: 1, decoder: DecoderFunction::EgreError },
     OBDCommand { name: "FUEL_RAIL_PRESSURE", description: "Fuel Rail Pressure", cmd: b"0123", bytes: 2, decoder: DecoderFunction::FuelRailPressure },
+
+    OBDCommand { name: "EVAP_SYSTEM_PURGE", description: "Commanded Evaporative Purge", cmd: b"011E", bytes: 1, decoder: DecoderFunction::EvapPurge },
+    OBDCommand { name: "FUEL_LEVEL", description: "Fuel Level Input", cmd: b"012F", bytes: 1, decoder: DecoderFunction::FuelLevel },
+    OBDCommand { name: "WARM_UPS_SINCE_DTC_CLEAR", description: "Number of warm-ups since DTCs cleared", cmd: b"0130", bytes: 1, decoder: DecoderFunction::WarmUps },
+    OBDCommand { name: "DISTANCE_SINCE_DTC_CLEAR", description: "Distance traveled since DTCs cleared", cmd: b"0131", bytes: 2, decoder: DecoderFunction::DistanceTraveled },
+    OBDCommand { name: "EVAP_VAPOR_PRESSURE_ALT", description: "Evap. System Vapor Pressure", cmd: b"0146", bytes: 2, decoder: DecoderFunction::EvapVaporPressureAlt },
+    OBDCommand { name: "FUEL_RAIL_PRESSURE_ABS", description: "Fuel Rail Absolute Pressure", cmd: b"0159", bytes: 2, decoder: DecoderFunction::FuelRailPressureAbs },
+    OBDCommand { name: "ENGINE_OIL_TEMPERATURE", description: "Engine oil temperature", cmd: b"015C", bytes: 1, decoder: DecoderFunction::OilTemperature },
+    OBDCommand { name: "FUEL_INJECTION_TIMING", description: "Fuel injection timing", cmd: b"015D", bytes: 2, decoder: DecoderFunction::InjectionTiming },
+    OBDCommand { name: "FUEL_RATE", description: "Engine fuel rate", cmd: b"015E", bytes: 2, decoder: DecoderFunction::FuelRate },
+    OBDCommand { name: "VEHICLE_IDENTIFICATION", description: "Vehicle identification number (VIN)", cmd: b"0159", bytes: 20, decoder: DecoderFunction::VIN },
+
 ];
 
 impl OBDCommand {
@@ -115,7 +135,6 @@ impl OBDCommand {
             DecoderFunction::IntakePressure => Self::decode_intake_pressure(raw_data).to_string(),
             DecoderFunction::TimingAdvance => Self::decode_timing_advance(raw_data).to_string(),
             DecoderFunction::AirStatus => todo!(),
-            DecoderFunction::O2Sensors => todo!(),
             DecoderFunction::SensorVoltage => todo!(),
             DecoderFunction::OBdCompliance => todo!(),
             DecoderFunction::O2Sensor => Self::decode_o2_sensor(raw_data),
@@ -143,6 +162,15 @@ impl OBDCommand {
             DecoderFunction::DistanceTraveledMILON => Self::decode_distance_traveled_mil_on(raw_data).to_string(),
             DecoderFunction::EgreError => Self::decode_egr_error(raw_data).to_string(),
             DecoderFunction::FuelRailPressure => Self::decode_fuel_rail_pressure(raw_data).to_string(),
+            DecoderFunction::EvapPurge => Self::decode_evap_purge(raw_data).to_string(),
+            DecoderFunction::WarmUps => Self::decode_warmups(raw_data).to_string(),
+            DecoderFunction::DistanceTraveled => Self::decode_distance_traveled(raw_data).to_string(),
+            DecoderFunction::EvapVaporPressureAlt => Self::decode_evap_vapor_pressure(raw_data).to_string(),
+            DecoderFunction::FuelRailPressureAbs => Self::decode_fuel_rail_pressure(raw_data).to_string(),
+            DecoderFunction::OilTemperature => Self::decode_temperature(raw_data).to_string(),
+            DecoderFunction::InjectionTiming => Self::decode_injection_timing(raw_data).to_string(),
+            DecoderFunction::FuelRate => Self::decode_fuel_rate(raw_data).to_string(),
+            DecoderFunction::VIN => Self::decode_vin(raw_data),
             // ... other cases ...
     }
 }
@@ -350,6 +378,49 @@ fn decode_fuel_rail_pressure(raw_data: &[u8]) -> f32 {
     let pressure_kpa = (raw_data[0] as u16 * 256 + raw_data[1] as u16) as f32;
     return  pressure_kpa;
 }
+
+fn decode_evap_purge(data: &[u8]) -> f32 {
+
+    let value = data[0] as f32;
+    let purge_percentage = (value / 255.0) * 100.0;
+
+    return purge_percentage;
+}
+
+fn decode_warmups(data: &[u8]) -> u8 {
+    data[0]
+}
+
+fn decode_distance_traveled(data: &[u8]) -> f32 {
+    let kilometers = ((data[0] as u16) * 256) + (data[1] as u16);
+    kilometers as f32 * 0.621371 // miles
+}
+
+fn decode_evap_vapor_pressure(data: &[u8]) -> f32 {
+    let raw_value = ((data[0] as i16) * 256) + (data[1] as i16);
+    raw_value as f32 * 0.1
+}
+
+// scaling by 10 compare to normal pressure
+fn decode_fuel_rail_pressure_abs(data: &[u8]) -> f32 {
+    ((data[0] as f32) * 256.0 + (data[1] as f32)) * 10.0
+}
+
+fn decode_injection_timing(data: &[u8]) -> f32 {
+    (((data[0] as f32) * 256.0 + (data[1] as f32)) / 128.0) - 210.0
+}
+
+fn decode_fuel_rate(data: &[u8]) -> f32 {
+    ((data[0] as f32) * 256.0 + (data[1] as f32)) / 20.0 // l/h
+}
+
+fn decode_vin(data: &[u8]) -> String {
+    // Convert bytes 1 to end into characters
+    let vin_part: Vec<char> = data[1..].iter().map(|&byte| byte as char).collect();
+
+    vin_part.into_iter().collect()
+}
+
 
 
 }
