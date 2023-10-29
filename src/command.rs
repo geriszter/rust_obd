@@ -47,7 +47,7 @@ static MODE1: [OBDCommand; 7] = [
 impl OBDCommand {
     
     
-    fn decode_data(command: &OBDCommand, raw_data: &[u8]) -> String {
+    pub fn decode_data(command: &OBDCommand, raw_data: &[u8]) -> String {
         match command.decoder {
             DecoderFunction::PID => todo!(),
             DecoderFunction::Status => Self::decode_status(raw_data),
@@ -76,7 +76,7 @@ impl OBDCommand {
     }
 }
 
-
+// Implement HashMap lookup
 pub fn get_command(name: &str) -> Option<&'static OBDCommand> {
     for command in MODE1.iter() {
         if command.name == name {

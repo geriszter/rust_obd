@@ -11,15 +11,31 @@ async fn main() {
             println!("Successfully connected to ELM327 device!");
             println!("ELM327 Version: {}", version.trim());
 
-            // Read Coolant Temperature
-            let temp = connection.read_coolant_temperature().await;
-            println!("Coolant Temperature: {}°C", temp);
+            let cmd = command::OBDCommand::get_command("ENGINE_COOOLANT_TEMPERATURE");
 
-            match timeout(Duration::from_secs(5), connection.read_stored_dtc()).await {
-                Ok(Ok(_)) => println!("Done"),
-                Ok(Err(e)) => println!("Error reading DTCs: {}", e),
-                Err(_) => println!("Timed out while reading DTCs"),
+            if let Some(command) = cmd {
+                match timeout(Duration::from_secs(5), connection.send_obd_command(&command)).await {
+                    Ok(Ok(result)) => {
+                        println!("Command Name: {}, Result: {}", command.name, result);
+                    }
+                    Ok(Err(e)) => {
+                        println!("Error sending OBD command: {}", e);
+                    },
+                    Err(_) => {
+                        println!("Timed out while sending OBD command");
+                    }
+                }
             }
+
+            // // Read Coolant Temperature
+            // let temp = connection.read_coolant_temperature().await;
+            // println!("Coolant Temperature: {}°C", temp);
+
+            // match timeout(Duration::from_secs(5), connection.read_stored_dtc()).await {
+            //     Ok(Ok(_)) => println!("Done"),
+            //     Ok(Err(e)) => println!("Error reading DTCs: {}", e),
+            //     Err(_) => println!("Timed out while reading DTCs"),
+            // }
         },
         Ok(Err(e)) => {
             println!("Failed to connect: {}", e);
@@ -31,11 +47,11 @@ async fn main() {
     
 
     // //command test
-    let cmd = command::OBDCommand::get_command("ENGINE_COOOLANT_TEMPERATURE");
+    //let cmd = command::OBDCommand::get_command("ENGINE_COOOLANT_TEMPERATURE");
 
-    if let Some(command) = cmd {
-        println!("Command Name: {}, cmd: {}", command.name, String::from_utf8_lossy(&command.cmd[..]).to_string());
-    }
+    // if let Some(command) = cmd {
+    //     println!("Command Name: {}, cmd: {}", command.name, String::from_utf8_lossy(&command.cmd[..]).to_string());
+    // }
     
 
 }
