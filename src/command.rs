@@ -184,7 +184,7 @@ impl OBDCommand {
             DecoderFunction::WarmUps => Self::decode_warmups(raw_data).to_string(),
             DecoderFunction::DistanceTraveled => Self::decode_distance_traveled(raw_data).to_string(),
             DecoderFunction::EvapVaporPressureAlt => Self::decode_evap_vapor_pressure(raw_data).to_string(),
-            DecoderFunction::FuelRailPressureAbs => Self::decode_fuel_rail_pressure(raw_data).to_string(),
+            DecoderFunction::FuelRailPressureAbs => Self::decode_fuel_rail_pressure_abs(raw_data).to_string(),
             DecoderFunction::OilTemperature => Self::decode_temperature(raw_data).to_string(),
             DecoderFunction::InjectionTiming => Self::decode_injection_timing(raw_data).to_string(),
             DecoderFunction::FuelRate => Self::decode_fuel_rate(raw_data).to_string(),
@@ -220,6 +220,7 @@ pub fn get_command_info(name: &str) {
         if command.name == name {
             println!("Command Description: {}", command.description);
             println!("Byte size: {}", command.bytes);
+            return;
         }
     }
     println!("Command not found");

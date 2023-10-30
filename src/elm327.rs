@@ -63,6 +63,29 @@ impl Elm327Connection {
         
         Ok(decoded_response)
     }
+
+    pub async fn start_sniffing(&mut self) {
+        // Send command to ELM327 to start monitoring CAN bus
+        if let Err(e) = self.send_string_command("AT MA\r").await {
+            println!("Failed to start CAN monitoring: {}", e);
+            return;
+        }
+
+        // Continuously read responses (CAN data)
+        loop {
+            match self.read_response().await {
+                Ok(response) => {
+                    // Here, process the raw response which contains CAN data
+                    println!("Received CAN Data: {}", response);
+                },
+                Err(e) => {
+                    println!("Error reading CAN data: {}", e);
+                    break;
+                }
+            }
+        }
+    }
+    
     
 
     // //Just for testing

@@ -13,6 +13,8 @@ async fn main() {
 
             let cmd = command::OBDCommand::get_command("ENGINE_COOOLANT_TEMPERATURE");
 
+            command::OBDCommand::get_command_info("MAF");
+
             if let Some(command) = cmd {
                 match timeout(Duration::from_secs(5), connection.send_obd_command(&command)).await {
                     Ok(Ok(result)) => {
