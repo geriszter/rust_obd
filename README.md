@@ -1,5 +1,5 @@
 # Rust OBD
-![Example](/docs/logo.png)
+<img src="https://your-image-url.type" width="250" height="250">
 This project is a basic implementation of a program to interact with OBD (On-Board Diagnostics) systems, specifically with ELM327 devices. It provides the ability to connect, send, and interpret OBD commands, with a focus on obtaining information about various car parameters.
 
 ## Features
