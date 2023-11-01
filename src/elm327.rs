@@ -65,8 +65,6 @@ impl Elm327Connection {
     pub async fn send_obd_command(&mut self, cmd: &OBDCommand) -> io::Result<String> {
         self.send_string_command(&format!("{}\r", String::from_utf8_lossy(&cmd.cmd[..]))).await?;
         let raw_data = self.read_response().await?;
-        
-        println!("{}", raw_data);
 
         let bytes: Vec<u8> = raw_data.split_whitespace()
         .filter_map(|hex| u8::from_str_radix(hex, 16).ok())

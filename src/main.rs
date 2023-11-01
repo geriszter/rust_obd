@@ -11,7 +11,8 @@ async fn main() {
             println!("Successfully connected to ELM327 device!");
             println!("ELM327 Version: {}", connection.get_version());
 
-            let cmd = command::OBDCommand::get_command("ENGINE_COOOLANT_TEMPERATURE");
+            //let cmd = command::OBDCommand::get_command("ENGINE_COOOLANT_TEMPERATURE");
+            let cmd = command::OBDCommand::get_command("RPM");
 
             command::OBDCommand::get_command_info("MAF");
 
