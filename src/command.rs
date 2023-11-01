@@ -321,7 +321,6 @@ fn decode_runtime(data: &[u8]) -> u16 {
 }
 
 fn decode_fuel_level(data: &[u8]) -> f32 {
-    // Convert the byte value into a percentage
     data[0] as f32 / 2.55
 }
 

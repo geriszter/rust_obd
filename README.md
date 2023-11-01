@@ -27,3 +27,7 @@ On errors, appropriate error messages will be displayed.
 
 ## OBD-II Commands Reference
 For a comprehensive list of OBD-II commands (PIDs), you can refer to the [Wikipedia page on OBD-II PIDs](https://en.wikipedia.org/wiki/OBD-II_PIDs).
+
+## ELM327 OBD-II Reference
+[PDF](https://www.elmelectronics.com/DSheets/ELM327DSL.pdf)
+[AT commands](https://www.sparkfun.com/datasheets/Widgets/ELM327_AT_Commands.pdf)

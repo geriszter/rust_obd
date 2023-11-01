@@ -17,18 +17,16 @@ async fn main() {
             command::OBDCommand::get_command_info("MAF");
 
             if let Some(command) = cmd {
-                match timeout(Duration::from_secs(10), connection.send_obd_command(&command)).await {
-                    Ok(Ok(result)) => {
+                match connection.send_obd_command(&command).await {
+                    Ok(result) => {
                         println!("Command Name: {}, Result: {}", command.name, result);
                     }
-                    Ok(Err(e)) => {
+                    Err(e) => {
                         println!("Error sending OBD command: {}", e);
-                    },
-                    Err(_) => {
-                        println!("Timed out while sending OBD command");
                     }
                 }
             }
+            
 
             // // Read Coolant Temperature WITH HEADERS
             // let temp = connection.read_coolant_temperature().await;
