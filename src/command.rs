@@ -276,8 +276,8 @@ fn decode_load(data: &[u8]) -> f32 {
 }
 
 
-fn decode_temperature(data: &[u8]) -> i32 {
-    data[0] as i32 - 40  // Celsius
+fn decode_temperature(data: &[u8]) -> f32 {
+    (data[0] as f32) - 40.0  // Celsius
 }
 
 fn decode_fuel_pressure(data: &[u8]) -> i32 {
@@ -293,7 +293,7 @@ fn decode_rpm(data: &[u8]) -> f32 {
 }
 
 fn decode_speed(data: &[u8]) -> f32 {
-    data[0] as f32 * 0.621371 // mph
+    (data[0] as f32) * 0.621371 // mph
 }
 
 fn decode_timing_advance(data: &[u8]) -> f32 {

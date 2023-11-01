@@ -4,19 +4,19 @@ mod command;
 
 #[tokio::main]
 async fn main() {
-    let address = "192.168.0.10:35000"; 
+    let address = "127.0.0.1:35000"; 
 
     match timeout(Duration::from_secs(5), elm327::Elm327Connection::connect(address)).await {
-        Ok(Ok((mut connection, version))) => {
+        Ok(Ok(mut connection)) => {
             println!("Successfully connected to ELM327 device!");
-            println!("ELM327 Version: {}", version.trim());
+            println!("ELM327 Version: {}", connection.get_version());
 
             let cmd = command::OBDCommand::get_command("ENGINE_COOOLANT_TEMPERATURE");
 
             command::OBDCommand::get_command_info("MAF");
 
             if let Some(command) = cmd {
-                match timeout(Duration::from_secs(5), connection.send_obd_command(&command)).await {
+                match timeout(Duration::from_secs(10), connection.send_obd_command(&command)).await {
                     Ok(Ok(result)) => {
                         println!("Command Name: {}, Result: {}", command.name, result);
                     }
@@ -29,7 +29,7 @@ async fn main() {
                 }
             }
 
-            // // Read Coolant Temperature
+            // // Read Coolant Temperature WITH HEADERS
             // let temp = connection.read_coolant_temperature().await;
             // println!("Coolant Temperature: {}°C", temp);
 

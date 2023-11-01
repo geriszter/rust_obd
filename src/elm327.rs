@@ -9,25 +9,36 @@ use crate::command::OBDCommand;
 
 pub struct Elm327Connection {
     stream: TcpStream,
+    version: String,
+    previous_cmd: String,
 }
 
 impl Elm327Connection {
 
-    async fn initialize(&mut self) -> io::Result<String> {
+    async fn initialize(&mut self) -> io::Result<()>{
         self.send_string_command("ATZ\r").await?; // Reset
-        let version = self.read_response().await?; 
+        self.version = self.read_response().await?; 
+
+        println!("{}", self.version);
+
         self.send_string_command("ATE0\r").await?; // Echo off
 
-        Ok(version)
+        println!("{}", self.previous_cmd);
+
+        self.previous_cmd = self.read_response().await?;
+        self.send_string_command("ATH0\r").await?; // Headers off
+        self.previous_cmd = self.read_response().await?;
+        
+        Ok(())
     }
 
-    pub async fn connect(address: &str) -> io::Result<(Self, String)> {
+    pub async fn connect(address: &str) -> io::Result<Self> {
         let stream = timeout(Duration::from_secs(5), TcpStream::connect(address)).await??;
-        let mut connection = Elm327Connection { stream };
+        let mut connection = Elm327Connection { stream, version: String::new(), previous_cmd: String::new() };
         
-        let version = connection.initialize().await?;
+        connection.initialize().await?;
         
-        Ok((connection, version))
+        Ok((connection))
     }
 
 
@@ -55,11 +66,14 @@ impl Elm327Connection {
         self.send_string_command(&format!("{}\r", String::from_utf8_lossy(&cmd.cmd[..]))).await?;
         let raw_data = self.read_response().await?;
         
-        // Convert the string to byte array for decoding
-        let bytes = raw_data.as_bytes();
+        println!("{}", raw_data);
+
+        let bytes: Vec<u8> = raw_data.split_whitespace()
+        .filter_map(|hex| u8::from_str_radix(hex, 16).ok())
+        .collect();
 
         // Decode the response
-        let decoded_response = OBDCommand::decode_data(cmd, bytes);
+        let decoded_response = OBDCommand::decode_data(cmd, &bytes);
         
         Ok(decoded_response)
     }
@@ -86,35 +100,39 @@ impl Elm327Connection {
         }
     }
     
-    
+    pub fn get_version(&self) -> String{
+        let v = &self.version;
 
-    // //Just for testing
-    // pub async fn read_coolant_temperature(&mut self) -> i32 {
-    //     if let Err(e) = self.send_string_command("0105\r").await {
-    //         println!("Failed to send coolant temperature command: {}", e);
-    //         return 0;
-    //     }
-        
-    //     let response = match self.read_response().await {
-    //         Ok(res) => res,
-    //         Err(e) => {
-    //             println!("Failed to read coolant temperature response: {}", e);
-    //             return 0;
-    //         }
-    //     };
-        
-    //     if let Some(captured) = response.split_whitespace().nth(2) {
-    //         if let Ok(a) = i32::from_str_radix(captured, 16) {
-    //             return a - 40;  // Convert to Celsius
-    //         } else {
-    //             println!("Failed to parse coolant temperature response");
-    //         }
-    //     } else {
-    //         println!("Failed to interpret coolant temperature data");
-    //     }
+        return v.to_string();
+    }
 
-    //     return 0;
-    // }
+    // Just for testing
+    pub async fn read_coolant_temperature(&mut self) -> i32 {
+        if let Err(e) = self.send_string_command("0105\r").await {
+            println!("Failed to send coolant temperature command: {}", e);
+            return 0;
+        }
+        
+        let response = match self.read_response().await {
+            Ok(res) => res,
+            Err(e) => {
+                println!("Failed to read coolant temperature response: {}", e);
+                return 0;
+            }
+        };
+        
+        if let Some(captured) = response.split_whitespace().nth(2) {
+            if let Ok(a) = i32::from_str_radix(captured, 16) {
+                return a - 40;  // Convert to Celsius
+            } else {
+                println!("Failed to parse coolant temperature response");
+            }
+        } else {
+            println!("Failed to interpret coolant temperature data");
+        }
+
+        return 0;
+    }
     
     // //Just for testing, alos it should return the array
     // pub async fn read_stored_dtc(&mut self) -> Result<(), String> {
