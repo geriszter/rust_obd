@@ -280,12 +280,12 @@ fn decode_temperature(data: &[u8]) -> f32 {
     (data[0] as f32) - 40.0  // Celsius
 }
 
-fn decode_fuel_pressure(data: &[u8]) -> i32 {
-    data[0] as i32 * 3
+fn decode_fuel_pressure(data: &[u8]) -> f32 {
+    data[0] as f32 * 3.0
 }
 
-fn decode_intake_pressure(data: &[u8]) -> i32 {
-    data[0] as i32
+fn decode_intake_pressure(data: &[u8]) -> f32 {
+    data[0] as f32
 }
 
 fn decode_rpm(data: &[u8]) -> f32 {
@@ -487,7 +487,5 @@ fn decode_aux_input_status(data: &[u8]) -> String {
         "Aux Input: OFF".to_string()
     }
 }
-
-
 
 }

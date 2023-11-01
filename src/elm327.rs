@@ -87,7 +87,6 @@ impl Elm327Connection {
         loop {
             match self.read_response().await {
                 Ok(response) => {
-                    // Here, process the raw response which contains CAN data
                     println!("Received CAN Data: {}", response);
                 },
                 Err(e) => {
@@ -100,37 +99,36 @@ impl Elm327Connection {
     
     pub fn get_version(&self) -> String{
         let v = &self.version;
-
         return v.to_string();
     }
 
-    // Just for testing
-    pub async fn read_coolant_temperature(&mut self) -> i32 {
-        if let Err(e) = self.send_string_command("0105\r").await {
-            println!("Failed to send coolant temperature command: {}", e);
-            return 0;
-        }
+    // // Just for testing
+    // pub async fn read_coolant_temperature(&mut self) -> i32 {
+    //     if let Err(e) = self.send_string_command("0105\r").await {
+    //         println!("Failed to send coolant temperature command: {}", e);
+    //         return 0;
+    //     }
         
-        let response = match self.read_response().await {
-            Ok(res) => res,
-            Err(e) => {
-                println!("Failed to read coolant temperature response: {}", e);
-                return 0;
-            }
-        };
+    //     let response = match self.read_response().await {
+    //         Ok(res) => res,
+    //         Err(e) => {
+    //             println!("Failed to read coolant temperature response: {}", e);
+    //             return 0;
+    //         }
+    //     };
         
-        if let Some(captured) = response.split_whitespace().nth(2) {
-            if let Ok(a) = i32::from_str_radix(captured, 16) {
-                return a - 40;  // Convert to Celsius
-            } else {
-                println!("Failed to parse coolant temperature response");
-            }
-        } else {
-            println!("Failed to interpret coolant temperature data");
-        }
+    //     if let Some(captured) = response.split_whitespace().nth(2) {
+    //         if let Ok(a) = i32::from_str_radix(captured, 16) {
+    //             return a - 40;  // Convert to Celsius
+    //         } else {
+    //             println!("Failed to parse coolant temperature response");
+    //         }
+    //     } else {
+    //         println!("Failed to interpret coolant temperature data");
+    //     }
 
-        return 0;
-    }
+    //     return 0;
+    // }
     
     // //Just for testing, alos it should return the array
     // pub async fn read_stored_dtc(&mut self) -> Result<(), String> {
